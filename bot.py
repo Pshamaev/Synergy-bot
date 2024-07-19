@@ -48,5 +48,5 @@ if __name__ == '__main__':
         listen="0.0.0.0",
         port=int(os.environ.get('PORT', '8080')),
         url_path=bot_token,
-        webhook_url=f"https://<ваше-имя-приложения>.up.railway.app/{bot_token}"
+        webhook_url=f"https://<your-app-name>.up.railway.app/{bot_token}"
     )
