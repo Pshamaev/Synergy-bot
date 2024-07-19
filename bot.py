@@ -43,4 +43,10 @@ if __name__ == '__main__':
     application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    application.run_polling()
+    # Настраиваем вебхуки
+    application.run_webhook(
+        listen="0.0.0.0",
+        port=int(os.environ.get('PORT', '8443')),
+        url_path=bot_token,
+        webhook_url=f"https://<your-railway-app-name>.railway.app/{bot_token}"
+    )
