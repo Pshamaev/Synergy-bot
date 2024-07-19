@@ -4,7 +4,7 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
 
 # Получаем токены из переменных окружения
-bot_token = os.getenv('BOT_TOKEN')
+bot_token = os.getenv('TELEGRAM_API_KEY')
 gpt_api_key = os.getenv('GPT_API_KEY')
 
 openai.api_key = gpt_api_key
