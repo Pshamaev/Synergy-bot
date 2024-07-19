@@ -32,7 +32,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     )
 
     # Форматируем ссылки как гиперссылки
-    formatted_response = response.choices[0].message['content'].replace('[', '[').replace(']', ']')
+    formatted_response = response['choices'][0]['message']['content'].replace('[', '[').replace(']', ']')
 
     # Отправляем ответ пользователю
     await update.message.reply_text(formatted_response)
@@ -48,5 +48,5 @@ if __name__ == '__main__':
         listen="0.0.0.0",
         port=int(os.environ.get('PORT', '8443')),
         url_path=bot_token,
-        webhook_url=f"https://<имя-приложения>.up.railway.app/{bot_token}"
+        webhook_url=f"https://<ваше-имя-приложения>.up.railway.app/{bot_token}"
     )
