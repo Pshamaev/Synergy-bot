@@ -5,7 +5,14 @@ from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, Messa
 
 # Получаем токены из переменных окружения
 bot_token = os.getenv('BOT_TOKEN')
+if not bot_token:
+    raise ValueError("Переменная окружения BOT_TOKEN не установлена")
+print(f"Bot Token: {bot_token}")
+
 gpt_api_key = os.getenv('GPT_API_KEY')
+if not gpt_api_key:
+    raise ValueError("Переменная окружения GPT_API_KEY не установлена")
+print(f"GPT API Key: {gpt_api_key}")
 
 openai.api_key = gpt_api_key
 
