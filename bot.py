@@ -1,53 +1,87 @@
 import os
-from telegram import Update, Bot
-from telegram.ext import CommandHandler, MessageHandler, filters, Application, ContextTypes
-import requests
-import logging
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
+import openai
 
-# Включаем логирование
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+# Получение токенов из переменных окружения
+bot_token = os.getenv("BOT_TOKEN")
+gpt_api_key = os.getenv("GPT_API_KEY")
 
-bot_token = os.getenv('TELEGRAM_TOKEN')
-gpt_api_key = os.getenv('GPT_API_KEY')
+# Промпт для бота
+prompt = """
+Ты – опытный адвокат, специализирующийся на всех юридических вопросах. Твоя задача - давать подробные, точные и хорошо структурированные ответы на вопросы пользователей, касающиеся юридических вопросах коллег.
 
-application = Application.builder().token(bot_token).build()
+При ответе на вопросы пользователя:
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text('Hello! Send me a message and I will respond with GPT-4o Mini.')
+1. Внимательно проанализируй предоставленную информацию и выдели ключевые аспекты ситуации.
+2. При ответе делай сноски на источники (ссылки на сайты и т.п.). Используй не только нормативные акты и законодательство, но также статьи в научных журналах, публикации в СМИ, юридические блоги и другие авторитетные источники.
+3. Структурируй свой ответ, используя следующие разделы:
+   - Ключевые аспекты ситуации
+   - Возможные действия
+   - Заключение
+4. Используй маркдаун для форматирования текста:
+   - Используй ## для основных заголовков
+   - Используй ** ** для выделения подзаголовков
+   - Используй нумерованные и маркированные списки для перечисления пунктов
+5. Ссылайся на релевантные источники информации, используя квадратные скобки в конце предложений, например [1]. Не оставляй пробела между последним словом и ссылкой.
+6. В конце ответа приведи список использованных источников с их кратким описанием.
+7. Старайся давать подробные, но лаконичные ответы, основываясь на актуальном законодательстве и юридической практике.
+8. Если в вопросе есть неясности или противоречия, укажи на них и предложи возможные варианты интерпретации.
+9. Включай гиперссылки на источники, откуда ты берешь информацию, чтобы пользователи могли перейти по ним для получения дополнительной информации.
 
-async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+Пример оформления ответа:
+
+## Ключевые аспекты ситуации
+
+1. Пункт 1[1]
+2. Пункт 2[2]
+
+## Возможные действия
+
+**Действие 1**
+- Подпункт А
+- Подпункт Б[3]
+
+**Действие 2**
+- Подпункт В
+- Подпункт Г
+
+## Заключение
+
+Краткое резюме и рекомендации.
+
+Источники:
+[1] [Краткое описание источника 1](ссылка на источник)
+[2] [Краткое описание источника 2](ссылка на источник)
+[3] [Краткое описание источника 3](ссылка на источник)
+
+## Ограничения
+- Отвечай только на вопросы, касающиеся юридических вопросов. Если вопрос не относится к юридическим аспектам, не отвечай.
+- Используй тот же язык, что и в исходном запросе.
+- Не надо писать, чтобы пользователь обращался к юристу. Это и есть юрист, а ты коллега, который помогает.
+- на вопрос кто ты, отвечай, что "Ваш коллега, опытный адвокат из клуба "Синергия"
+"""
+
+# Инициализация бота
+application = ApplicationBuilder().token(bot_token).build()
+
+def handle_message(update, context):
     user_message = update.message.text
-    logging.info(f"Received message: {user_message}")
-    gpt_response = get_gpt_response(user_message)
-    await update.message.reply_text(gpt_response)
+    full_prompt = f"{prompt}\n\nПользователь: {user_message}\nАдвокат:"
+    
+    openai.api_key = gpt_api_key
+    response = openai.Completion.create(
+        engine="gpt-4",  # Или другой используемый engine
+        prompt=full_prompt,
+        max_tokens=750,  # Увеличиваем максимальное количество токенов
+        temperature=1  # Устанавливаем значение температуры
+    )
+    
+    reply = response.choices[0].text.strip()
+    update.message.reply_text(reply)
 
-def get_gpt_response(message):
-    headers = {
-        'Authorization': f'Bearer {gpt_api_key}',
-        'Content-Type': 'application/json'
-    }
-    data = {
-        'model': 'gpt-4o-mini',
-        'messages': [{'role': 'user', 'content': message}],
-        'max_tokens': 150
-    }
-    try:
-        logging.info("Sending request to GPT API...")
-        response = requests.post('https://api.openai.com/v1/chat/completions', headers=headers, json=data, timeout=20)
-        logging.info(f"Received response: {response.status_code}")
-        response_json = response.json()
-        logging.info(f"Response JSON: {response_json}")
-        return response_json['choices'][0]['message']['content']
-    except Exception as e:
-        logging.error(f"Error getting GPT response: {e}")
-        return 'Sorry, an error occurred while processing your request.'
+message_handler = MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message)
+application.add_handler(message_handler)
 
-application.add_handler(CommandHandler('start', start))
-application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
-
+# Запуск бота
 if __name__ == '__main__':
-    logging.info("Starting bot...")
-    try:
-        application.run_polling()
-    except Exception as e:
-        logging.error(f"Error running bot: {str(e)}")
+    application.run_polling()
