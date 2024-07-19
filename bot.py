@@ -21,8 +21,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         temperature=1.0
     )
 
+    # Форматируем ссылки как гиперссылки
+    formatted_response = response.choices[0].text.replace('[', '[').replace(']', ']')
+
     # Отправляем ответ пользователю
-    await update.message.reply_text(response.choices[0].text)
+    await update.message.reply_text(formatted_response)
 
 if __name__ == '__main__':
     application = ApplicationBuilder().token(bot_token).build()
