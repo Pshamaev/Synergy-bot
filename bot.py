@@ -10,18 +10,21 @@ for key, value in os.environ.items():
 
 # Получаем токены из переменных окружения
 bot_token = os.getenv('BOT_TOKEN')
+gpt_api_key = os.getenv('GPT_API_KEY')
+webhook_url = os.getenv('WEBHOOK_URL')
+
+print("BOT_TOKEN:", bot_token)
+print("GPT_API_KEY:", gpt_api_key)
+print("WEBHOOK_URL:", webhook_url)
+
 if not bot_token:
     raise ValueError("Переменная окружения BOT_TOKEN не установлена")
-
-gpt_api_key = os.getenv('GPT_API_KEY')
 if not gpt_api_key:
     raise ValueError("Переменная окружения GPT_API_KEY не установлена")
-
-openai.api_key = gpt_api_key
-
-webhook_url = os.getenv('WEBHOOK_URL')
 if not webhook_url:
     raise ValueError("Переменная окружения WEBHOOK_URL не установлена")
+
+openai.api_key = gpt_api_key
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text('Привет! Я ваш коллега, опытный адвокат из клуба "Синергия". Задайте мне ваш юридический вопрос.')
