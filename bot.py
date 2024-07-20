@@ -1,10 +1,8 @@
 import os
-import openai
+from openai import AsyncOpenAI
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
 import logging
-import asyncio
-from openai import AsyncOpenAI
 
 # Настройка логирования
 logging.basicConfig(level=logging.DEBUG)
@@ -63,7 +61,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_message}
             ],
-            model="gpt-3.5-turbo",
+            model="gpt-4o-mini",
             max_tokens=750,
             temperature=1.0
         )
