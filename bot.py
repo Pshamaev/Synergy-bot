@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 bot_token = os.getenv('BOT_TOKEN')
 gpt_api_key = os.getenv('GPT_API_KEY')
 webhook_url = os.getenv('WEBHOOK_URL')
-port = int(os.getenv('PORT', '8443'))
+port = int(os.getenv('PORT', '8080'))
 
 logger.debug(f"BOT_TOKEN: {bot_token}")
 logger.debug(f"GPT_API_KEY: {gpt_api_key}")
