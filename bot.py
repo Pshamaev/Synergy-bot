@@ -27,10 +27,12 @@ if not webhook_url:
 openai.api_key = gpt_api_key
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    print(f"Received /start command from {update.message.chat.username}")
     await update.message.reply_text('Привет! Я ваш коллега, опытный адвокат из клуба "Синергия". Задайте мне ваш юридический вопрос.')
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_message = update.message.text
+    print(f"Received message: {user_message} from {update.message.chat.username}")
     
     system_prompt = """Ты – опытный адвокат, специализирующийся на всех юридических вопросах. Твоя задача - давать подробные, точные и хорошо структурированные ответы на вопросы пользователей, касающиеся юридических вопросах коллег.
 
@@ -69,6 +71,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     )
     
     formatted_response = response['choices'][0]['message']['content']
+    print(f"Sending response: {formatted_response} to {update.message.chat.username}")
     await update.message.reply_text(formatted_response)
 
 if __name__ == '__main__':
