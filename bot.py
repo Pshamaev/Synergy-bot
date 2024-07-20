@@ -3,6 +3,8 @@ import openai
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
 import logging
+import asyncio
+from openai import AsyncOpenAI
 
 # Настройка логирования
 logging.basicConfig(level=logging.DEBUG)
@@ -26,7 +28,7 @@ if not gpt_api_key:
 if not webhook_url:
     raise ValueError("Переменная окружения WEBHOOK_URL не установлена")
 
-openai.api_key = gpt_api_key
+client = AsyncOpenAI(api_key=gpt_api_key)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     logger.debug(f"Получена команда /start от {update.message.chat.username}")
@@ -56,16 +58,16 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     """
 
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4o-mini",
+        chat_completion = await client.chat.completions.create(
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_message}
             ],
+            model="gpt-3.5-turbo",
             max_tokens=750,
             temperature=1.0
         )
-        formatted_response = response['choices'][0]['message']['content']
+        formatted_response = chat_completion['choices'][0]['message']['content']
         logger.debug(f"Отправка ответа: {formatted_response} пользователю {update.message.chat.username}")
         await update.message.reply_text(formatted_response)
     except Exception as e:
