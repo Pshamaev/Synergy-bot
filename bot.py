@@ -78,7 +78,7 @@ if __name__ == '__main__':
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     # Настраиваем вебхуки
-    port = int(os.environ.get('PORT', '8443'))
+    port = int(os.environ.get('PORT', '8080'))
     
     application.run_webhook(
         listen="0.0.0.0",
