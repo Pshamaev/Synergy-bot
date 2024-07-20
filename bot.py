@@ -3,6 +3,11 @@ import openai
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
 
+# Отладочный код для вывода всех переменных окружения
+print("All environment variables:")
+for key, value in os.environ.items():
+    print(f"{key}: {value}")
+
 # Получаем токены из переменных окружения
 bot_token = os.getenv('BOT_TOKEN')
 if not bot_token:
@@ -13,6 +18,10 @@ if not gpt_api_key:
     raise ValueError("Переменная окружения GPT_API_KEY не установлена")
 
 openai.api_key = gpt_api_key
+
+webhook_url = os.getenv('WEBHOOK_URL')
+if not webhook_url:
+    raise ValueError("Переменная окружения WEBHOOK_URL не установлена")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text('Привет! Я ваш коллега, опытный адвокат из клуба "Синергия". Задайте мне ваш юридический вопрос.')
@@ -66,10 +75,6 @@ if __name__ == '__main__':
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     # Настраиваем вебхуки
-    webhook_url = os.getenv('WEBHOOK_URL')
-    if not webhook_url:
-        raise ValueError("Переменная окружения WEBHOOK_URL не установлена")
-
     port = int(os.environ.get('PORT', '8443'))
     
     application.run_webhook(
