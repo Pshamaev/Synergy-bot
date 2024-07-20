@@ -12,10 +12,12 @@ logger = logging.getLogger(__name__)
 bot_token = os.getenv('BOT_TOKEN')
 gpt_api_key = os.getenv('GPT_API_KEY')
 webhook_url = os.getenv('WEBHOOK_URL')
+port = int(os.getenv('PORT', '8443'))
 
 logger.debug(f"BOT_TOKEN: {bot_token}")
 logger.debug(f"GPT_API_KEY: {gpt_api_key}")
 logger.debug(f"WEBHOOK_URL: {webhook_url}")
+logger.debug(f"PORT: {port}")
 
 if not bot_token:
     raise ValueError("Переменная окружения BOT_TOKEN не установлена")
@@ -77,9 +79,11 @@ if __name__ == '__main__':
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     # Настраиваем вебхуки
+    logger.debug("Настройка вебхука")
     application.run_webhook(
         listen="0.0.0.0",
-        port=int(os.environ.get('PORT', 8443)),
+        port=port,
         url_path=bot_token,
         webhook_url=f"{webhook_url}/{bot_token}"
     )
+    logger.debug("Вебхук настроен")
