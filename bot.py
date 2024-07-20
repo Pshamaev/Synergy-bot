@@ -3,17 +3,10 @@ import openai
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
 import logging
-from flask import Flask
 
 # Настройка логирования
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-
-app = Flask(__name__)
-
-@app.route('/')
-def index():
-    return "Server is running"
 
 # Получаем токены из переменных окружения
 bot_token = os.getenv('BOT_TOKEN')
@@ -94,6 +87,3 @@ if __name__ == '__main__':
         webhook_url=f"{webhook_url}/{bot_token}"
     )
     logger.debug("Вебхук настроен")
-    
-    # Запуск Flask для проверки доступности
-    app.run(host='0.0.0.0', port=port)
