@@ -1,3 +1,21 @@
+
+import os
+
+bot_token = os.getenv('BOT_TOKEN')
+gpt_api_key = os.getenv('GPT_API_KEY')
+webhook_url = os.getenv('WEBHOOK_URL')
+
+print("BOT_TOKEN:", bot_token)
+print("GPT_API_KEY:", gpt_api_key)
+print("WEBHOOK_URL:", webhook_url)
+
+if not bot_token:
+    raise ValueError("Переменная окружения BOT_TOKEN не установлена")
+if not gpt_api_key:
+    raise ValueError("Переменная окружения GPT_API_KEY не установлена")
+if not webhook_url:
+    raise ValueError("Переменная окружения WEBHOOK_URL не установлена")
+
 import os
 import openai
 from telegram import Update
