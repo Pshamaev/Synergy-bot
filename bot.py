@@ -4,7 +4,7 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
 
 # Отладочный код для вывода всех переменных окружения
-print("All environment variables:")
+print("Все переменные окружения:")
 for key, value in os.environ.items():
     print(f"{key}: {value}")
 
@@ -27,27 +27,21 @@ if not webhook_url:
 openai.api_key = gpt_api_key
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    print(f"Received /start command from {update.message.chat.username}")
+    print(f"Получена команда /start от {update.message.chat.username}")
     await update.message.reply_text('Привет! Я ваш коллега, опытный адвокат из клуба "Синергия". Задайте мне ваш юридический вопрос.')
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_message = update.message.text
-    print(f"Received message: {user_message} from {update.message.chat.username}")
+    print(f"Получено сообщение: {user_message} от {update.message.chat.username}")
 
-    system_prompt = """Ты – опытный адвокат, специализирующийся на всех юридических вопросах. Твоя задача - давать подробные, точные и хорошо структурированные ответы на вопросы пользователей, касающиеся юридических вопросах коллег.
+    system_prompt = """Ты – опытный адвокат, специализирующийся на всех юридических вопросах. Твоя задача - давать подробные, точные и хорошо структурированные ответы на вопросы пользователей, касающиеся юридических вопросов коллег.
 
     При ответе на вопросы пользователя:
     1. Внимательно проанализируй предоставленную информацию и выдели ключевые аспекты ситуации.
     2. При ответе делай сноски на источники (ссылки на сайты и т.п.). Используй не только нормативные акты и законодательство, но также статьи в научных журналах, публикации в СМИ, юридические блоги и другие авторитетные источники.
-    3. Структурируй свой ответ, используя следующие разделы:
-    - Ключевые аспекты ситуации
-    - Возможные действия
-    - Заключение
-    4. Используй маркдаун для форматирования текста:
-    - Используй ## для основных заголовков
-    - Используй ** ** для выделения подзаголовков
-    - Используй нумерованные и маркированные списки для перечисления пунктов
-    5. Ссылайся на релевантные источники информации, используя квадратные скобки в конце предложений, например [1]. Не оставляй пробела между последним словом и ссылкой.
+    3. Структурируй свои ответы так, чтобы они были логичными и легко читаемыми.
+    4. Приводи примеры из реальной юридической практики, чтобы лучше иллюстрировать свои ответы.
+    5. Указывай возможные риски и последствия различных действий, упомянутых в вопросе.
     6. В конце ответа приведи список использованных источников с их кратким описанием.
     7. Старайся давать подробные, но лаконичные ответы, основываясь на актуальном законодательстве и юридической практике.
     8. Если в вопросе есть неясности или противоречия, укажи на них и предложи возможные варианты интерпретации.
@@ -70,14 +64,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             temperature=1.0
         )
         formatted_response = response['choices'][0]['message']['content']
-        print(f"Sending response: {formatted_response} to {update.message.chat.username}")
+        print(f"Отправка ответа: {formatted_response} пользователю {update.message.chat.username}")
         await update.message.reply_text(formatted_response)
     except Exception as e:
-        print(f"Error during OpenAI API call: {e}")
+        print(f"Ошибка при вызове OpenAI API: {e}")
         await update.message.reply_text("Произошла ошибка при обработке вашего запроса. Пожалуйста, попробуйте позже.")
 
 if __name__ == '__main__':
-    print("Starting bot")
+    print("Запуск бота")
     application = ApplicationBuilder().token(bot_token).build()
     application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
