@@ -2,20 +2,20 @@ import os
 import openai
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
+import logging
 
-# Отладочный код для вывода всех переменных окружения
-print("Все переменные окружения:")
-for key, value in os.environ.items():
-    print(f"{key}: {value}")
+# Настройка логирования
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 # Получаем токены из переменных окружения
 bot_token = os.getenv('BOT_TOKEN')
 gpt_api_key = os.getenv('GPT_API_KEY')
 webhook_url = os.getenv('WEBHOOK_URL')
 
-print("BOT_TOKEN:", bot_token)
-print("GPT_API_KEY:", gpt_api_key)
-print("WEBHOOK_URL:", webhook_url)
+logger.debug(f"BOT_TOKEN: {bot_token}")
+logger.debug(f"GPT_API_KEY: {gpt_api_key}")
+logger.debug(f"WEBHOOK_URL: {webhook_url}")
 
 if not bot_token:
     raise ValueError("Переменная окружения BOT_TOKEN не установлена")
@@ -27,12 +27,12 @@ if not webhook_url:
 openai.api_key = gpt_api_key
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    print(f"Получена команда /start от {update.message.chat.username}")
+    logger.debug(f"Получена команда /start от {update.message.chat.username}")
     await update.message.reply_text('Привет! Я ваш коллега, опытный адвокат из клуба "Синергия". Задайте мне ваш юридический вопрос.')
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_message = update.message.text
-    print(f"Получено сообщение: {user_message} от {update.message.chat.username}")
+    logger.debug(f"Получено сообщение: {user_message} от {update.message.chat.username}")
 
     system_prompt = """Ты – опытный адвокат, специализирующийся на всех юридических вопросах. Твоя задача - давать подробные, точные и хорошо структурированные ответы на вопросы пользователей, касающиеся юридических вопросов коллег.
 
@@ -64,14 +64,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             temperature=1.0
         )
         formatted_response = response['choices'][0]['message']['content']
-        print(f"Отправка ответа: {formatted_response} пользователю {update.message.chat.username}")
+        logger.debug(f"Отправка ответа: {formatted_response} пользователю {update.message.chat.username}")
         await update.message.reply_text(formatted_response)
     except Exception as e:
-        print(f"Ошибка при вызове OpenAI API: {e}")
+        logger.error(f"Ошибка при вызове OpenAI API: {e}")
         await update.message.reply_text("Произошла ошибка при обработке вашего запроса. Пожалуйста, попробуйте позже.")
 
 if __name__ == '__main__':
-    print("Запуск бота")
+    logger.debug("Запуск бота")
     application = ApplicationBuilder().token(bot_token).build()
     application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
